@@ -4,3 +4,6 @@
 *.so
 .envrc
 .direnv
+*dist
+*__pycache__
+*egg-info
