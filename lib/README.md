@@ -201,6 +201,55 @@ Without parameter, it mirrors horizontally. The parameter is a single character
   ./demo --led-pixel-mapper="Mirror:H"
 ```
 
+#### StackToRow
+
+The `StackToRow` mapper allows parallel strands to subsequently be mapped end-to-end.
+
+After using a combination of the other mappers, you may end up with a virtual
+layout similar to the following, where x and y increase to the right and down:
+```
+[ STRAND #1 ]
+[ STRAND #2 ]
+[ STRAND #3 ]
+[ STRAND #4 ]
+```
+The mapper can then be used to form the final end-to-end arrangement.
+
+The standard usage (`StackToRow`) is mapped to:
+```
+[ STRAND #1 ][ STRAND #2 ][ STRAND #3 ][ STRAND #4 ]
+```
+
+The serpentine usage (`StackToRow:Z`) is mapped to:
+```
+[ STRAND #1 ][ 2# ꓷNꓯꓤꓕS ][ STRAND #3 ][ ᔭ# ꓷNꓯꓤꓕS ]
+```
+
+The flip usage (`StackToRow:F`) is mapped to:
+```
+[ STRAND #1 ][ STRAND #2 ][ Ɛ# ꓷNꓯꓤꓕS ][ ᔭ# ꓷNꓯꓤꓕS ]
+```
+
+The modifiers can be combined if necessary.
+
+##### Example layout
+
+Using 64x32px panels, the following arrangement is a 64x256px display
+(visualized from the LED-side):
+```
+ ⌈I⌉\ ⌈I⌉\ ⌈I⌉\ ⌈I⌉<#1 |    ⌈O⌉\ ⌈O⌉\ ⌈O⌉\ ⌈O⌉
+ ⌊O⌋ \⌊O⌋ \⌊O⌋ \⌊O⌋    | #2>⌊I⌋ \⌊I⌋ \⌊I⌋ \⌊I⌋
+```
+
+This layout can be configured with:
+```
+V-mapper;Rotate:90;StackToRow:F;Rotate:180
+```
+The remap mapper can be used to describe this layout:
+```
+Remap:256,64|96,0w|64,0w|32,0w|0,0w|128,0e|160,0e|192,0e|224,0e
+```
+
 #### Combining Mappers
 
 You can chain multiple mappers in the configuration, by separating them
@@ -226,7 +275,7 @@ in the options struct in C++ or Python.
   options.pixel_mapper_config = "Rotate:90";
 ```
 
-#### Feature remap mapper (experimental)
+### Feature remap mapper (experimental)
 
 Please look at https://github.com/hzeller/rpi-rgb-led-matrix/pull/1478 
 This is a placeholder until we have more documentation.
@@ -262,6 +311,12 @@ Last panel on second chain is not used
 8 8 9 9
 ```
 
+<img width="400" height="587" alt="image" src="https://github.com/user-attachments/assets/8e50dfba-cb2c-4554-9038-73b5bb19fcfd" />
+
+```
+That's how it should work. You need to map all panels (end of chain 3), so you must discard last 6 panels:
+ --led-pixel-mapper='Remap:192,128|0,0s|0,32s|...|112,32n|112,0n|0,0x|0,0x|0,0x|0,0x|0,0x|0,0x'
+```
 
 ### Writing your own mappers
 
@@ -301,7 +356,7 @@ Please see https://github.com/hzeller/rpi-rgb-led-matrix/issues/1732
 
 
 
-#### Multiplex Mappers
+### Multiplex Mappers
 
 Sometimes you even need this for the panel itself: In some panels
 (typically the 'outdoor panels', often with 1:4 multiplexing) the pixels
